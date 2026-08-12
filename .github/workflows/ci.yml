@@ -1,3 +1,36 @@
+﻿name: JobPilot CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
   deploy:
     needs: test-and-build
     if: github.ref == 'refs/heads/main'
@@ -27,24 +60,16 @@
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel pull \
-            --yes \
-            --environment=production \
-            --token "$VERCEL_TOKEN"
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
 
       - name: Build Vercel project
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel build \
-            --prod \
-            --token "$VERCEL_TOKEN"
+          vercel build --prod --token "$VERCEL_TOKEN"
 
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel deploy \
-            --prebuilt \
-            --prod \
-            --token "$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
