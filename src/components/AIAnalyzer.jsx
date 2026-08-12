@@ -13,15 +13,29 @@ import {
   MessageSquare
 } from 'lucide-react'
 
-// Configure PDF.js worker for Vite
+// ---------------------------------------------------------
+// PDF.js worker configuration for Vite
+// ---------------------------------------------------------
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
-// Extract readable text from a PDF
+// ---------------------------------------------------------
+// Extract readable text from PDF
+// ---------------------------------------------------------
+
 async function extractPdfText(file) {
+  if (!file) {
+    throw new Error('No PDF file was selected.')
+  }
+
   const arrayBuffer = await file.arrayBuffer()
 
+  if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+    throw new Error('The uploaded PDF is empty.')
+  }
+
   const pdf = await pdfjsLib.getDocument({
-    data: arrayBuffer
+    data: new Uint8Array(arrayBuffer)
   }).promise
 
   const pages = []
@@ -36,36 +50,188 @@ async function extractPdfText(file) {
     const content = await page.getTextContent()
 
     const text = content.items
-      .map(item => item.str || '')
+      .map(item => {
+        if (!item) return ''
+        return typeof item.str === 'string' ? item.str : ''
+      })
       .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim()
 
-    pages.push(text)
+    if (text) {
+      pages.push(text)
+    }
   }
 
-  return pages.join('\n\n').trim()
+  const extractedText = pages.join('\n\n').trim()
+
+  if (!extractedText) {
+    throw new Error(
+      'No selectable text was found in this PDF. If this is a scanned/image-based resume, please use a text-based PDF or paste the resume text manually.'
+    )
+  }
+
+  return extractedText
 }
 
+// ---------------------------------------------------------
 // Read supported resume files
+// ---------------------------------------------------------
+
 async function readResumeFile(file) {
-  if (!file) return ''
+  if (!file) {
+    throw new Error('No file selected.')
+  }
 
   const extension = file.name
     .split('.')
     .pop()
     ?.toLowerCase()
 
-  if (extension === 'pdf') {
-    return extractPdfText(file)
-  }
+  switch (extension) {
+    case 'pdf':
+      return extractPdfText(file)
 
-  if (extension === 'txt' || extension === 'md') {
-    return file.text()
-  }
+    case 'txt':
+    case 'md':
+      return file.text()
 
-  throw new Error(
-    'Unsupported file type. Please upload a PDF, TXT, or MD file.'
-  )
+    default:
+      throw new Error(
+        'Unsupported file type. Please upload a PDF, TXT, or MD file.'
+      )
+  }
 }
+
+// ---------------------------------------------------------
+// Safely parse API response
+// ---------------------------------------------------------
+
+async function parseApiResponse(response) {
+  const rawText = await response.text()
+
+  if (!rawText || !rawText.trim()) {
+    throw new Error(
+      `The analysis API returned an empty response (HTTP ${response.status}).`
+    )
+  }
+
+  let data
+
+  try {
+    data = JSON.parse(rawText)
+  } catch {
+    // Sometimes APIs return JSON wrapped inside Markdown fences.
+    const cleaned = rawText
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim()
+
+    try {
+      data = JSON.parse(cleaned)
+    } catch {
+      console.error('Invalid API response:', rawText)
+
+      throw new Error(
+        'The analysis server returned an invalid response. Please check the API logs.'
+      )
+    }
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      `Analysis failed with HTTP ${response.status}.`
+    )
+  }
+
+  return data
+}
+
+// ---------------------------------------------------------
+// Normalize analyzer response
+// ---------------------------------------------------------
+
+function normalizeResult(data) {
+  const breakdown = data?.breakdown || {}
+
+  return {
+    matchScore: Number.isFinite(Number(data?.matchScore))
+      ? Math.max(0, Math.min(100, Number(data.matchScore)))
+      : 0,
+
+    summary:
+      data?.summary ||
+      'No summary was returned by the analysis service.',
+
+    breakdown: {
+      technicalSkills: Number.isFinite(
+        Number(breakdown.technicalSkills)
+      )
+        ? Math.max(
+            0,
+            Math.min(100, Number(breakdown.technicalSkills))
+          )
+        : 0,
+
+      requirementsCoverage: Number.isFinite(
+        Number(breakdown.requirementsCoverage)
+      )
+        ? Math.max(
+            0,
+            Math.min(
+              100,
+              Number(breakdown.requirementsCoverage)
+            )
+          )
+        : 0,
+
+      projectExperience: Number.isFinite(
+        Number(breakdown.projectExperience)
+      )
+        ? Math.max(
+            0,
+            Math.min(100, Number(breakdown.projectExperience))
+          )
+        : 0,
+
+      toolsTechnologies: Number.isFinite(
+        Number(breakdown.toolsTechnologies)
+      )
+        ? Math.max(
+            0,
+            Math.min(100, Number(breakdown.toolsTechnologies))
+          )
+        : 0
+    },
+
+    matchingSkills: Array.isArray(data?.matchingSkills)
+      ? data.matchingSkills
+      : [],
+
+    missingSkills: Array.isArray(data?.missingSkills)
+      ? data.missingSkills
+      : [],
+
+    skillGaps: Array.isArray(data?.skillGaps)
+      ? data.skillGaps
+      : [],
+
+    recommendations: Array.isArray(data?.recommendations)
+      ? data.recommendations
+      : [],
+
+    interviewTopics: Array.isArray(data?.interviewTopics)
+      ? data.interviewTopics
+      : []
+  }
+}
+
+// ---------------------------------------------------------
+// Main component
+// ---------------------------------------------------------
 
 export default function AIAnalyzer() {
   const [resume, setResume] = useState('')
@@ -74,6 +240,10 @@ export default function AIAnalyzer() {
   const [result, setResult] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+
+  // -------------------------------------------------------
+  // Upload resume
+  // -------------------------------------------------------
 
   const readFile = async file => {
     if (!file) return
@@ -86,33 +256,48 @@ export default function AIAnalyzer() {
 
       const text = await readResumeFile(file)
 
-      if (!text || !text.trim()) {
+      const cleanedText = text
+        .replace(/\u0000/g, '')
+        .replace(/\r\n/g, '\n')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+
+      if (!cleanedText) {
         throw new Error(
           'The uploaded file does not contain readable text.'
         )
       }
 
-      setResume(text)
+      setResume(cleanedText)
     } catch (err) {
       console.error('Resume reading error:', err)
 
       setResume('')
 
       setError(
-        err.message ||
-          'Unable to read the uploaded resume.'
+        err?.message ||
+        'Unable to read the uploaded resume.'
       )
     }
   }
 
+  // -------------------------------------------------------
+  // Analyze resume against JD
+  // -------------------------------------------------------
+
   const analyze = async () => {
     if (!resume.trim()) {
-      setError('Please upload or paste your resume.')
+      setError(
+        'Please upload a resume or paste your resume text.'
+      )
       return
     }
 
     if (!jobDescription.trim()) {
-      setError('Please enter the job description.')
+      setError(
+        'Please enter the job description.'
+      )
       return
     }
 
@@ -123,40 +308,55 @@ export default function AIAnalyzer() {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
+
         headers: {
           'Content-Type': 'application/json'
         },
+
         body: JSON.stringify({
-          resume,
-          jobDescription
+          resume: resume.trim(),
+          jobDescription: jobDescription.trim()
         })
       })
 
-      const data = await response.json()
+      const data = await parseApiResponse(response)
 
-      if (!response.ok) {
-        throw new Error(
-          data.error || 'Analysis failed.'
-        )
-      }
+      const normalized = normalizeResult(data)
 
-      setResult(data)
+      setResult(normalized)
     } catch (err) {
       console.error('Analysis error:', err)
 
       setError(
-        err.message ||
-          'Unable to analyze the resume.'
+        err?.message ||
+        'Unable to analyze the resume. Please try again.'
       )
     } finally {
       setBusy(false)
     }
   }
 
+  // -------------------------------------------------------
+  // Clear resume
+  // -------------------------------------------------------
+
+  const clearResume = () => {
+    setResume('')
+    setFileName('')
+    setResult(null)
+    setError('')
+  }
+
+  // -------------------------------------------------------
+  // UI
+  // -------------------------------------------------------
+
   return (
     <section className="ai-page">
 
+      {/* Page Header */}
       <div className="page-title">
+
         <div>
           <h1>AI Job Match</h1>
 
@@ -170,11 +370,16 @@ export default function AIAnalyzer() {
           <Sparkles size={16} />
           AI analyzer
         </span>
+
       </div>
 
+      {/* Input Panels */}
       <div className="ai-grid">
 
-        {/* Resume Panel */}
+        {/* -------------------------------------------------
+             Resume Panel
+        -------------------------------------------------- */}
+
         <div className="panel stack">
 
           <div className="panel-title">
@@ -197,18 +402,25 @@ export default function AIAnalyzer() {
                 type="file"
                 accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
                 hidden
-                onChange={e =>
-                  readFile(
-                    e.target.files?.[0]
-                  )
-                }
+                onChange={event => {
+                  const file =
+                    event.target.files?.[0]
+
+                  readFile(file)
+
+                  // Allow selecting the same file again.
+                  event.target.value = ''
+                }}
               />
 
             </label>
 
           </div>
 
+          {/* File Information */}
+
           {fileName && (
+
             <div className="file-info">
 
               <FileText size={17} />
@@ -223,8 +435,21 @@ export default function AIAnalyzer() {
                   : 'Reading...'}
               </span>
 
+              {resume && (
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={clearResume}
+                >
+                  Clear
+                </button>
+              )}
+
             </div>
+
           )}
+
+          {/* Resume Text */}
 
           <label>
 
@@ -233,8 +458,8 @@ export default function AIAnalyzer() {
             <textarea
               rows="18"
               value={resume}
-              onChange={e => {
-                setResume(e.target.value)
+              onChange={event => {
+                setResume(event.target.value)
                 setResult(null)
                 setError('')
               }}
@@ -249,7 +474,10 @@ export default function AIAnalyzer() {
 
         </div>
 
-        {/* Job Description Panel */}
+        {/* -------------------------------------------------
+             Job Description Panel
+        -------------------------------------------------- */}
+
         <div className="panel stack">
 
           <div className="panel-title">
@@ -274,8 +502,11 @@ export default function AIAnalyzer() {
             <textarea
               rows="18"
               value={jobDescription}
-              onChange={e => {
-                setJobDescription(e.target.value)
+              onChange={event => {
+                setJobDescription(
+                  event.target.value
+                )
+
                 setResult(null)
                 setError('')
               }}
@@ -289,6 +520,7 @@ export default function AIAnalyzer() {
           </div>
 
           <button
+            type="button"
             className="primary"
             disabled={
               busy ||
@@ -310,8 +542,12 @@ export default function AIAnalyzer() {
 
       </div>
 
-      {/* Error */}
+      {/* ---------------------------------------------------
+          Error Message
+      ---------------------------------------------------- */}
+
       {error && (
+
         <div className="alert">
 
           <strong>
@@ -323,9 +559,13 @@ export default function AIAnalyzer() {
           </span>
 
         </div>
+
       )}
 
-      {/* Results */}
+      {/* ---------------------------------------------------
+          Results
+      ---------------------------------------------------- */}
+
       {result && (
         <AnalysisResult result={result} />
       )}
@@ -334,12 +574,18 @@ export default function AIAnalyzer() {
   )
 }
 
+// ---------------------------------------------------------
+// Analysis Result
+// ---------------------------------------------------------
+
 function AnalysisResult({ result }) {
 
   return (
+
     <div className="analysis-result">
 
       {/* Overall Score */}
+
       <div className="score-card">
 
         <span>
@@ -357,7 +603,9 @@ function AnalysisResult({ result }) {
       </div>
 
       {/* Match Breakdown */}
+
       {result.breakdown && (
+
         <section className="match-breakdown">
 
           <h2>
@@ -374,7 +622,7 @@ function AnalysisResult({ result }) {
             <Breakdown
               label="Technical skills"
               value={
-                result.breakdown.technicalSkills ?? 0
+                result.breakdown.technicalSkills
               }
             />
 
@@ -382,7 +630,7 @@ function AnalysisResult({ result }) {
               label="Requirements coverage"
               value={
                 result.breakdown
-                  .requirementsCoverage ?? 0
+                  .requirementsCoverage
               }
             />
 
@@ -390,7 +638,7 @@ function AnalysisResult({ result }) {
               label="Project & experience"
               value={
                 result.breakdown
-                  .projectExperience ?? 0
+                  .projectExperience
               }
             />
 
@@ -398,29 +646,35 @@ function AnalysisResult({ result }) {
               label="Tools & technologies"
               value={
                 result.breakdown
-                  .toolsTechnologies ?? 0
+                  .toolsTechnologies
               }
             />
 
           </div>
 
         </section>
+
       )}
 
       {/* Result Cards */}
+
       <div className="result-grid">
 
         <ResultList
           title="Matching skills"
           items={result.matchingSkills}
           good
-          icon={<CheckCircle2 size={19} />}
+          icon={
+            <CheckCircle2 size={19} />
+          }
         />
 
         <ResultList
           title="Missing skills"
           items={result.missingSkills}
-          icon={<CircleX size={19} />}
+          icon={
+            <CircleX size={19} />
+          }
         />
 
         <SkillGapList
@@ -430,13 +684,17 @@ function AnalysisResult({ result }) {
         <ResultList
           title="Recommendations"
           items={result.recommendations}
-          icon={<Lightbulb size={19} />}
+          icon={
+            <Lightbulb size={19} />
+          }
         />
 
         <ResultList
           title="Interview topics"
           items={result.interviewTopics}
-          icon={<MessageSquare size={19} />}
+          icon={
+            <MessageSquare size={19} />
+          }
         />
 
       </div>
@@ -445,9 +703,14 @@ function AnalysisResult({ result }) {
   )
 }
 
+// ---------------------------------------------------------
+// Breakdown Card
+// ---------------------------------------------------------
+
 function Breakdown({ label, value }) {
 
   return (
+
     <div className="breakdown-item">
 
       <span>
@@ -459,8 +722,13 @@ function Breakdown({ label, value }) {
       </strong>
 
     </div>
+
   )
 }
+
+// ---------------------------------------------------------
+// Result List
+// ---------------------------------------------------------
 
 function ResultList({
   title,
@@ -469,11 +737,13 @@ function ResultList({
   icon
 }) {
 
-  const safeItems = Array.isArray(items)
-    ? items
-    : []
+  const safeItems =
+    Array.isArray(items)
+      ? items
+      : []
 
   return (
+
     <div className="result-card">
 
       <div className="result-card-title">
@@ -490,18 +760,42 @@ function ResultList({
 
         <ul>
 
-          {safeItems.map((item, index) => (
+          {safeItems.map(
+            (item, index) => {
 
-            <li
-              className={good ? 'good' : ''}
-              key={index}
-            >
-              {typeof item === 'string'
-                ? item
-                : item?.skill || String(item)}
-            </li>
+              let displayText = ''
 
-          ))}
+              if (
+                typeof item === 'string'
+              ) {
+                displayText = item
+              } else if (
+                item &&
+                typeof item === 'object'
+              ) {
+                displayText =
+                  item.skill ||
+                  item.name ||
+                  item.title ||
+                  item.text ||
+                  JSON.stringify(item)
+              } else {
+                displayText =
+                  String(item)
+              }
+
+              return (
+                <li
+                  className={
+                    good ? 'good' : ''
+                  }
+                  key={index}
+                >
+                  {displayText}
+                </li>
+              )
+            }
+          )}
 
         </ul>
 
@@ -514,16 +808,25 @@ function ResultList({
       )}
 
     </div>
+
   )
 }
 
-function SkillGapList({ items = [] }) {
+// ---------------------------------------------------------
+// Skill Gap List
+// ---------------------------------------------------------
 
-  const safeItems = Array.isArray(items)
-    ? items
-    : []
+function SkillGapList({
+  items = []
+}) {
+
+  const safeItems =
+    Array.isArray(items)
+      ? items
+      : []
 
   return (
+
     <div className="result-card">
 
       <div className="result-card-title">
@@ -545,39 +848,69 @@ function SkillGapList({ items = [] }) {
 
         <div className="skill-gap-list">
 
-          {safeItems.map((item, index) => (
+          {safeItems.map(
+            (item, index) => {
 
-            <div
-              className="skill-gap"
-              key={index}
-            >
+              const skill =
+                typeof item === 'string'
+                  ? item
+                  : item?.skill ||
+                    item?.name ||
+                    'Unknown skill'
 
-              <div className="skill-gap-heading">
+              const priority =
+                typeof item === 'object' &&
+                item?.priority
+                  ? item.priority
+                  : 'Medium'
 
-                <strong>
-                  {item?.skill || 'Unknown skill'}
-                </strong>
+              const reason =
+                typeof item === 'object' &&
+                item?.reason
+                  ? item.reason
+                  : 'This requirement was not clearly detected in the resume.'
 
-                <span
-                  className={
-                    item?.priority === 'High'
-                      ? 'priority high'
-                      : 'priority medium'
-                  }
+              const priorityClass =
+                priority.toLowerCase() ===
+                'high'
+                  ? 'priority high'
+                  : priority.toLowerCase() ===
+                    'low'
+                  ? 'priority low'
+                  : 'priority medium'
+
+              return (
+
+                <div
+                  className="skill-gap"
+                  key={index}
                 >
-                  {item?.priority || 'Medium'} priority
-                </span>
 
-              </div>
+                  <div className="skill-gap-heading">
 
-              <p>
-                {item?.reason ||
-                  'This requirement was not clearly detected in the resume.'}
-              </p>
+                    <strong>
+                      {skill}
+                    </strong>
 
-            </div>
+                    <span
+                      className={
+                        priorityClass
+                      }
+                    >
+                      {priority} priority
+                    </span>
 
-          ))}
+                  </div>
+
+                  <p>
+                    {reason}
+                  </p>
+
+                </div>
+
+              )
+            }
+          )}
 
         </div>
 
@@ -590,5 +923,6 @@ function SkillGapList({ items = [] }) {
       )}
 
     </div>
+
   )
 }
