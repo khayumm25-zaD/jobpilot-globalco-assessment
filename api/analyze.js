@@ -1,8 +1,119 @@
 const SKILL_ALIASES = {
-  javascript: ['javascript', 'js', 'ecmascript'],
-  typescript: ['typescript', 'ts'],
-  react: ['react', 'reactjs', 'react.js'],
-  angular: ['angular', 'angularjs'],
+  // =========================
+  // AI / PROMPT ENGINEERING
+  // =========================
+
+  openai: [
+    'openai api',
+    'openai apis',
+    'openai'
+  ],
+
+  llm: [
+    'llm',
+    'llms',
+    'large language model',
+    'large language models'
+  ],
+
+  llmevaluation: [
+    'llm evaluation',
+    'llm evaluations',
+    'llm testing',
+    'language model evaluation',
+    'model evaluation'
+  ],
+
+  promptengineering: [
+    'prompt engineering',
+    'prompt engineer',
+    'prompt engineering techniques',
+    'prompt design',
+    'prompt optimization'
+  ],
+
+  prompttesting: [
+    'prompt testing',
+    'prompt test',
+    'prompt evaluation',
+    'prompt evaluations'
+  ],
+
+  structuredprompting: [
+    'structured prompting',
+    'structured prompt',
+    'structured prompts'
+  ],
+
+  fewshot: [
+    'few-shot prompting',
+    'few shot prompting',
+    'few-shot',
+    'few shot'
+  ],
+
+  zeroshot: [
+    'zero-shot prompting',
+    'zero shot prompting',
+    'zero-shot',
+    'zero shot'
+  ],
+
+  rag: [
+    'retrieval augmented generation',
+    'retrieval-augmented generation',
+    'rag'
+  ],
+
+  embeddings: [
+    'embeddings',
+    'embedding',
+    'text embeddings'
+  ],
+
+  vectordatabase: [
+    'vector databases',
+    'vector database',
+    'vector dbs',
+    'vector db'
+  ],
+
+  genai: [
+    'generative ai',
+    'genai',
+    'generative artificial intelligence'
+  ],
+
+  json: [
+    'json',
+    'javascript object notation'
+  ],
+
+  // =========================
+  // PROGRAMMING
+  // =========================
+
+  javascript: [
+    'javascript',
+    'js',
+    'ecmascript'
+  ],
+
+  typescript: [
+    'typescript',
+    'ts'
+  ],
+
+  react: [
+    'react',
+    'reactjs',
+    'react.js'
+  ],
+
+  angular: [
+    'angular',
+    'angularjs'
+  ],
 
   nodejs: [
     'node.js',
@@ -17,20 +128,32 @@ const SKILL_ALIASES = {
     'expressjs'
   ],
 
-  python: ['python', 'python3'],
-  java: ['java'],
+  python: [
+    'python',
+    'python3'
+  ],
+
+  java: [
+    'java'
+  ],
 
   springboot: [
     'spring boot',
     'springboot'
   ],
 
+  // =========================
+  // DATABASES
+  // =========================
+
   sql: [
-    'sql',
-    'structured query language'
+    'structured query language',
+    'sql'
   ],
 
-  mysql: ['mysql'],
+  mysql: [
+    'mysql'
+  ],
 
   postgresql: [
     'postgresql',
@@ -44,8 +167,9 @@ const SKILL_ALIASES = {
     'mongo'
   ],
 
-  supabase: ['supabase'],
-  firebase: ['firebase'],
+  // =========================
+  // APIS / TOOLS
+  // =========================
 
   restapi: [
     'rest api',
@@ -57,48 +181,55 @@ const SKILL_ALIASES = {
   ],
 
   api: [
-    'api',
-    'apis',
     'application programming interface',
-    'application programming interfaces'
+    'application programming interfaces',
+    'apis',
+    'api'
   ],
 
+  postman: [
+    'postman'
+  ],
+
+  automatedtesting: [
+    'automated testing',
+    'automation testing',
+    'test automation',
+    'automated tests'
+  ],
+
+  selenium: [
+    'selenium'
+  ],
+
+  playwright: [
+    'playwright'
+  ],
+
+  junit: [
+    'junit'
+  ],
+
+  pytest: [
+    'pytest'
+  ],
+
+  // =========================
+  // VERSION CONTROL / CI/CD
+  // =========================
+
   git: [
-    'git',
     'git scm',
     'git version control',
-    'version control'
+    'version control',
+    'git'
   ],
 
   github: [
-    'github',
     'github actions',
     'github repository',
-    'github repositories'
-  ],
-
-  html: [
-    'html',
-    'html5'
-  ],
-
-  css: [
-    'css',
-    'css3'
-  ],
-
-  bootstrap: ['bootstrap'],
-
-  tailwind: [
-    'tailwind',
-    'tailwind css'
-  ],
-
-  docker: ['docker'],
-
-  kubernetes: [
-    'kubernetes',
-    'k8s'
+    'github repositories',
+    'github'
   ],
 
   cicd: [
@@ -106,79 +237,115 @@ const SKILL_ALIASES = {
     'ci cd',
     'continuous integration',
     'continuous deployment',
-    'continuous integration and continuous deployment',
-    'github actions'
+    'continuous integration and continuous deployment'
+  ],
+
+  // =========================
+  // FRONTEND
+  // =========================
+
+  html: [
+    'html5',
+    'html'
+  ],
+
+  css: [
+    'css3',
+    'css'
+  ],
+
+  bootstrap: [
+    'bootstrap'
+  ],
+
+  tailwind: [
+    'tailwind css',
+    'tailwind'
+  ],
+
+  // =========================
+  // CLOUD / DEVOPS
+  // =========================
+
+  docker: [
+    'docker'
+  ],
+
+  kubernetes: [
+    'kubernetes',
+    'k8s'
   ],
 
   aws: [
-    'aws',
-    'amazon web services'
+    'amazon web services',
+    'aws'
   ],
 
   gcp: [
-    'gcp',
+    'google cloud platform',
     'google cloud',
-    'google cloud platform'
+    'gcp'
   ],
 
-  azure: ['azure'],
+  azure: [
+    'azure'
+  ],
 
-  vercel: ['vercel'],
+  vercel: [
+    'vercel'
+  ],
 
-  selenium: ['selenium'],
-  postman: ['postman'],
-  playwright: ['playwright'],
-  junit: ['junit'],
-  pytest: ['pytest'],
+  // =========================
+  // CS FUNDAMENTALS
+  // =========================
 
   oop: [
-    'object oriented',
-    'object-oriented',
     'object oriented programming',
     'object-oriented programming',
+    'object oriented',
+    'object-oriented',
     'oop'
   ],
 
   dsa: [
+    'data structures and algorithms',
     'data structures',
     'algorithms',
-    'data structures and algorithms',
     'dsa'
   ],
 
   microservices: [
+    'microservices architecture',
     'microservices',
-    'microservice',
-    'microservices architecture'
+    'microservice'
   ],
 
   ai: [
     'artificial intelligence',
     'ai'
-  ],
-
-  llm: [
-    'llm',
-    'llms',
-    'large language model',
-    'large language models'
-  ],
-
-  promptengineering: [
-    'prompt engineering',
-    'prompt engineer',
-    'prompt engineering techniques',
-    'prompt design'
-  ],
-
-  genai: [
-    'generative ai',
-    'genai',
-    'generative artificial intelligence'
   ]
 }
 
+
+// ======================================================
+// DISPLAY NAMES
+// ======================================================
+
 const DISPLAY_NAMES = {
+  openai: 'OpenAI API',
+  llm: 'LLMs',
+  llmevaluation: 'LLM Evaluation',
+  promptengineering: 'Prompt Engineering',
+  prompttesting: 'Prompt Testing',
+  structuredprompting: 'Structured Prompting',
+  fewshot: 'Few-shot Prompting',
+  zeroshot: 'Zero-shot Prompting',
+  rag: 'RAG',
+  embeddings: 'Embeddings',
+  vectordatabase: 'Vector Databases',
+  genai: 'Generative AI',
+  json: 'JSON',
+
   javascript: 'JavaScript',
   typescript: 'TypeScript',
   react: 'React',
@@ -188,40 +355,114 @@ const DISPLAY_NAMES = {
   python: 'Python',
   java: 'Java',
   springboot: 'Spring Boot',
+
   sql: 'SQL',
   mysql: 'MySQL',
   postgresql: 'PostgreSQL',
   mongodb: 'MongoDB',
-  supabase: 'Supabase',
-  firebase: 'Firebase',
+
   restapi: 'REST APIs',
   api: 'APIs',
+  postman: 'Postman',
+  automatedtesting: 'Automated Testing',
+  selenium: 'Selenium',
+  playwright: 'Playwright',
+  junit: 'JUnit',
+  pytest: 'PyTest',
+
   git: 'Git',
   github: 'GitHub',
+  cicd: 'CI/CD',
+
   html: 'HTML',
   css: 'CSS',
   bootstrap: 'Bootstrap',
   tailwind: 'Tailwind CSS',
+
   docker: 'Docker',
   kubernetes: 'Kubernetes',
-  cicd: 'CI/CD',
   aws: 'AWS',
   gcp: 'Google Cloud',
   azure: 'Azure',
   vercel: 'Vercel',
-  selenium: 'Selenium',
-  postman: 'Postman',
-  playwright: 'Playwright',
-  junit: 'JUnit',
-  pytest: 'PyTest',
+
   oop: 'Object-Oriented Programming',
   dsa: 'Data Structures & Algorithms',
   microservices: 'Microservices',
-  ai: 'Artificial Intelligence',
-  llm: 'LLMs',
-  promptengineering: 'Prompt Engineering',
-  genai: 'Generative AI'
+  ai: 'Artificial Intelligence'
 }
+
+
+// ======================================================
+// SKILL WEIGHTS
+// ======================================================
+//
+// AI-specific skills get higher weight when the JD
+// contains them. This prevents generic skills such as
+// HTML or Git from dominating an AI Prompt Engineer JD.
+//
+
+const SKILL_WEIGHTS = {
+  openai: 5,
+  llm: 5,
+  llmevaluation: 5,
+  promptengineering: 5,
+  prompttesting: 5,
+  structuredprompting: 4,
+  fewshot: 4,
+  zeroshot: 4,
+  rag: 5,
+  embeddings: 4,
+  vectordatabase: 4,
+  genai: 5,
+
+  python: 4,
+  restapi: 4,
+  api: 2,
+  json: 3,
+
+  react: 3,
+  nodejs: 3,
+  javascript: 3,
+
+  sql: 3,
+  mysql: 2,
+  postgresql: 2,
+  mongodb: 2,
+
+  postman: 2,
+  automatedtesting: 3,
+  selenium: 2,
+  playwright: 2,
+
+  git: 1,
+  github: 1,
+  cicd: 3,
+
+  docker: 2,
+  kubernetes: 2,
+  aws: 2,
+  gcp: 2,
+  azure: 2,
+  vercel: 1,
+
+  html: 1,
+  css: 1,
+  bootstrap: 1,
+  tailwind: 1,
+
+  java: 2,
+  springboot: 2,
+  oop: 2,
+  dsa: 2,
+  microservices: 2,
+  ai: 3
+}
+
+
+// ======================================================
+// TEXT NORMALIZATION
+// ======================================================
 
 function normalize(text) {
   return String(text || '')
@@ -230,6 +471,11 @@ function normalize(text) {
     .replace(/\s+/g, ' ')
     .trim()
 }
+
+
+// ======================================================
+// SKILL DETECTION
+// ======================================================
 
 function containsSkill(text, aliases) {
   const normalized = normalize(text)
@@ -241,16 +487,10 @@ function containsSkill(text, aliases) {
       return false
     }
 
-    /*
-     * Multi-word aliases are checked directly.
-     */
     if (a.includes(' ')) {
       return normalized.includes(a)
     }
 
-    /*
-     * Single-word aliases use word boundaries.
-     */
     const escaped = a.replace(
       /[.*+?^${}()|[\]\\]/g,
       '\\$&'
@@ -262,6 +502,7 @@ function containsSkill(text, aliases) {
     ).test(normalized)
   })
 }
+
 
 function detectSkills(text) {
   const detected = []
@@ -277,28 +518,33 @@ function detectSkills(text) {
   return detected
 }
 
+
 function displaySkills(keys) {
   return keys.map(
     key => DISPLAY_NAMES[key] || key
   )
 }
 
+
 function unique(array) {
   return [...new Set(array)]
 }
+
 
 function extractRequirements(jobDescription) {
   return unique(
     Object.entries(SKILL_ALIASES)
       .filter(([key, aliases]) =>
-        containsSkill(
-          jobDescription,
-          aliases
-        )
+        containsSkill(jobDescription, aliases)
       )
       .map(([key]) => key)
   )
 }
+
+
+// ======================================================
+// MATCHING
+// ======================================================
 
 function getMatchingSkills(
   resumeSkills,
@@ -309,6 +555,7 @@ function getMatchingSkills(
   )
 }
 
+
 function getMissingSkills(
   resumeSkills,
   jdSkills
@@ -318,14 +565,75 @@ function getMissingSkills(
   )
 }
 
-/*
- * -------------------------------------------------------
- * KEYWORD COVERAGE
- * -------------------------------------------------------
- *
- * Instead of comparing every word in the JD, we focus
- * on meaningful technical / professional terms.
- */
+
+// ======================================================
+// WEIGHTED TECHNICAL SCORE
+// ======================================================
+
+function calculateWeightedTechnicalScore(
+  resumeSkills,
+  jdSkills
+) {
+  if (!jdSkills.length) {
+    return 0
+  }
+
+  let totalWeight = 0
+  let matchedWeight = 0
+
+  for (const skill of jdSkills) {
+    const weight =
+      SKILL_WEIGHTS[skill] || 1
+
+    totalWeight += weight
+
+    if (resumeSkills.includes(skill)) {
+      matchedWeight += weight
+    }
+  }
+
+  if (!totalWeight) {
+    return 0
+  }
+
+  return Math.round(
+    (matchedWeight / totalWeight) * 100
+  )
+}
+
+
+// ======================================================
+// AI ROLE DETECTION
+// ======================================================
+
+function isAIRole(jobDescription) {
+  const text = normalize(jobDescription)
+
+  const aiTerms = [
+    'prompt engineer',
+    'prompt engineering',
+    'llm',
+    'large language model',
+    'generative ai',
+    'genai',
+    'openai',
+    'rag',
+    'retrieval augmented generation',
+    'llm evaluation',
+    'ai engineer',
+    'ai intern',
+    'artificial intelligence'
+  ]
+
+  return aiTerms.some(term =>
+    text.includes(term)
+  )
+}
+
+
+// ======================================================
+// KEYWORD COVERAGE
+// ======================================================
 
 function calculateKeywordCoverage(
   resume,
@@ -338,18 +646,16 @@ function calculateKeywordCoverage(
     return 0
   }
 
-  const jdImportantTerms = [
+  const importantTerms = [
     'developer',
     'software',
     'engineer',
     'frontend',
     'backend',
     'full stack',
-    'fullstack',
     'application',
     'web',
     'api',
-    'apis',
     'rest',
     'database',
     'sql',
@@ -372,11 +678,27 @@ function calculateKeywordCoverage(
     'docker',
     'ci/cd',
     'communication',
-    'problem solving'
+    'problem solving',
+
+    // AI terms
+    'openai',
+    'llm',
+    'prompt engineering',
+    'prompt testing',
+    'structured prompting',
+    'few-shot',
+    'zero-shot',
+    'rag',
+    'embeddings',
+    'vector database',
+    'generative ai',
+    'llm evaluation',
+    'postman',
+    'json'
   ]
 
   const relevantTerms =
-    jdImportantTerms.filter(term =>
+    importantTerms.filter(term =>
       jdText.includes(term)
     )
 
@@ -396,11 +718,10 @@ function calculateKeywordCoverage(
   )
 }
 
-/*
- * -------------------------------------------------------
- * PROJECT / EXPERIENCE EVIDENCE
- * -------------------------------------------------------
- */
+
+// ======================================================
+// PROJECT / EXPERIENCE
+// ======================================================
 
 function calculateProjectEvidence(
   resume,
@@ -431,7 +752,13 @@ function calculateProjectEvidence(
     'automation',
     'dashboard',
     'website',
-    'platform'
+    'platform',
+    'evaluation',
+    'prompt',
+    'llm',
+    'ai',
+    'generative',
+    'rag'
   ]
 
   const indicatorMatches =
@@ -442,13 +769,13 @@ function calculateProjectEvidence(
 
   const skillEvidence =
     Math.min(
-      matchingSkills.length * 10,
+      matchingSkills.length * 6,
       60
     )
 
   const textEvidence =
     Math.min(
-      indicatorMatches * 3,
+      indicatorMatches * 2,
       40
     )
 
@@ -458,11 +785,10 @@ function calculateProjectEvidence(
   )
 }
 
-/*
- * -------------------------------------------------------
- * TOOL / TECHNOLOGY COVERAGE
- * -------------------------------------------------------
- */
+
+// ======================================================
+// TOOLS / TECHNOLOGIES
+// ======================================================
 
 function calculateToolCoverage(
   resumeSkills,
@@ -482,7 +808,10 @@ function calculateToolCoverage(
     'postman',
     'selenium',
     'playwright',
-    'cicd'
+    'cicd',
+    'openai',
+    'json',
+    'vectordatabase'
   ]
 
   const jdTools =
@@ -506,11 +835,35 @@ function calculateToolCoverage(
   )
 }
 
-/*
- * -------------------------------------------------------
- * SCORE
- * -------------------------------------------------------
- */
+
+// ======================================================
+// REQUIREMENTS SCORE
+// ======================================================
+
+function calculateRequirementsScore(
+  technical,
+  keyword,
+  projects,
+  isAI
+) {
+  if (isAI) {
+    return Math.round(
+      technical * 0.65 +
+      keyword * 0.25 +
+      projects * 0.10
+    )
+  }
+
+  return Math.round(
+    technical * 0.70 +
+    keyword * 0.30
+  )
+}
+
+
+// ======================================================
+// OVERALL SCORE
+// ======================================================
 
 function calculateScore(
   resume,
@@ -529,71 +882,74 @@ function calculateScore(
     }
   }
 
-  /*
-   * Technical skill match.
-   */
   const technical =
-    Math.round(
-      (matchingSkills.length /
-        jdSkills.length) *
-        100
+    calculateWeightedTechnicalScore(
+      resumeSkills,
+      jdSkills
     )
 
-  /*
-   * JD keyword coverage.
-   */
   const keyword =
     calculateKeywordCoverage(
       resume,
       jobDescription
     )
 
-  /*
-   * Project / experience evidence.
-   */
   const projects =
     calculateProjectEvidence(
       resume,
       matchingSkills
     )
 
-  /*
-   * Tools / technology coverage.
-   */
   const tools =
     calculateToolCoverage(
       resumeSkills,
       jdSkills
     )
 
-  /*
-   * Requirements coverage.
-   *
-   * This is intentionally different from technical
-   * skill matching so that relevant resume evidence
-   * and keywords can contribute.
-   */
+  const aiRole =
+    isAIRole(jobDescription)
+
   const requirements =
-    Math.round(
-      technical * 0.70 +
-      keyword * 0.30
+    calculateRequirementsScore(
+      technical,
+      keyword,
+      projects,
+      aiRole
     )
 
   /*
-   * Overall:
+   * AI roles:
    *
-   * 45% technical skills
-   * 20% requirements coverage
-   * 20% project / experience
-   * 15% tools / technologies
+   * 50% weighted technical skills
+   * 20% requirements
+   * 15% projects
+   * 15% tools
+   *
+   * Normal roles:
+   *
+   * 45% technical
+   * 20% requirements
+   * 20% projects
+   * 15% tools
    */
-  const overall =
-    Math.round(
+
+  let overall
+
+  if (aiRole) {
+    overall = Math.round(
+      technical * 0.50 +
+      requirements * 0.20 +
+      projects * 0.15 +
+      tools * 0.15
+    )
+  } else {
+    overall = Math.round(
       technical * 0.45 +
       requirements * 0.20 +
       projects * 0.20 +
       tools * 0.15
     )
+  }
 
   return {
     overall: Math.max(
@@ -623,17 +979,28 @@ function calculateScore(
   }
 }
 
-/*
- * -------------------------------------------------------
- * PRIORITY
- * -------------------------------------------------------
- */
+
+// ======================================================
+// PRIORITY
+// ======================================================
 
 function priorityForSkill(skill) {
   const highPriority = [
+    'openai',
+    'llm',
+    'llmevaluation',
+    'promptengineering',
+    'prompttesting',
+    'structuredprompting',
+    'fewshot',
+    'zeroshot',
+    'rag',
+    'embeddings',
+    'vectordatabase',
+    'genai',
+
     'react',
     'nodejs',
-    'express',
     'python',
     'java',
     'springboot',
@@ -658,11 +1025,10 @@ function priorityForSkill(skill) {
   return 'Medium'
 }
 
-/*
- * -------------------------------------------------------
- * SKILL GAPS
- * -------------------------------------------------------
- */
+
+// ======================================================
+// SKILL GAPS
+// ======================================================
 
 function buildSkillGaps(
   missingSkills
@@ -681,11 +1047,10 @@ function buildSkillGaps(
   }))
 }
 
-/*
- * -------------------------------------------------------
- * RECOMMENDATIONS
- * -------------------------------------------------------
- */
+
+// ======================================================
+// RECOMMENDATIONS
+// ======================================================
 
 function buildRecommendations(
   matchingSkills,
@@ -694,10 +1059,13 @@ function buildRecommendations(
 ) {
   const recommendations = []
 
+  const aiRole =
+    isAIRole(jobDescription)
+
   if (missingSkills.length) {
     recommendations.push(
       `Add accurate evidence of ${displaySkills(
-        missingSkills.slice(0, 6)
+        missingSkills.slice(0, 8)
       ).join(', ')} through projects, coursework, certifications, or practical experience.`
     )
   }
@@ -705,8 +1073,22 @@ function buildRecommendations(
   if (matchingSkills.length) {
     recommendations.push(
       `Move your strongest matching skills such as ${displaySkills(
-        matchingSkills.slice(0, 6)
+        matchingSkills.slice(0, 8)
       ).join(', ')} closer to the top of your resume.`
+    )
+  }
+
+  if (aiRole) {
+    recommendations.push(
+      'Add concrete evidence of prompt engineering, LLM evaluation, prompt testing, and AI experimentation to your projects.'
+    )
+
+    recommendations.push(
+      'Include specific OpenAI API, RAG, embeddings, vector database, or LLM application work where applicable.'
+    )
+
+    recommendations.push(
+      'Show measurable LLM evaluation results such as accuracy, consistency, hallucination reduction, or evaluation coverage.'
     )
   }
 
@@ -744,32 +1126,59 @@ function buildRecommendations(
     )
   }
 
-  if (
-    containsSkill(
-      jobDescription,
-      SKILL_ALIASES.python
-    )
-  ) {
-    recommendations.push(
-      'Include concrete Python projects, automation scripts, APIs, or data-processing work if applicable.'
-    )
-  }
-
   return unique(
     recommendations
-  ).slice(0, 6)
+  ).slice(0, 8)
 }
 
-/*
- * -------------------------------------------------------
- * INTERVIEW TOPICS
- * -------------------------------------------------------
- */
+
+// ======================================================
+// INTERVIEW TOPICS
+// ======================================================
 
 function buildInterviewTopics(
   jdSkills
 ) {
   const topicMap = {
+    openai:
+      'OpenAI API integration, authentication and API usage',
+
+    llm:
+      'LLM fundamentals, model behavior and limitations',
+
+    llmevaluation:
+      'LLM evaluation, benchmarking and response quality assessment',
+
+    promptengineering:
+      'Prompt engineering, prompt optimization and prompt design',
+
+    prompttesting:
+      'Prompt testing, test cases and evaluation methodology',
+
+    structuredprompting:
+      'Structured prompting and reliable output formatting',
+
+    fewshot:
+      'Few-shot prompting and example selection',
+
+    zeroshot:
+      'Zero-shot prompting and instruction design',
+
+    rag:
+      'RAG architecture, retrieval and context injection',
+
+    embeddings:
+      'Embeddings and semantic similarity',
+
+    vectordatabase:
+      'Vector databases, indexing and similarity search',
+
+    genai:
+      'Generative AI concepts and practical applications',
+
+    json:
+      'JSON structures and structured AI outputs',
+
     javascript:
       'JavaScript fundamentals and practical implementation',
 
@@ -812,23 +1221,23 @@ function buildInterviewTopics(
     api:
       'API design, authentication, validation and error handling',
 
+    postman:
+      'API testing using Postman',
+
+    automatedtesting:
+      'Automated testing strategies and test design',
+
     git:
       'Git workflows, branching and version control',
 
     github:
-      'GitHub workflows, repositories and collaboration',
-
-    html:
-      'HTML fundamentals and semantic markup',
-
-    css:
-      'CSS fundamentals and responsive design',
-
-    docker:
-      'Docker fundamentals and containerization',
+      'GitHub repositories, collaboration and GitHub Actions',
 
     cicd:
       'CI/CD pipelines and deployment automation',
+
+    docker:
+      'Docker fundamentals and containerization',
 
     aws:
       'AWS fundamentals and cloud deployment',
@@ -842,8 +1251,8 @@ function buildInterviewTopics(
     selenium:
       'Selenium automation and test design',
 
-    postman:
-      'API testing using Postman',
+    playwright:
+      'Playwright automation and end-to-end testing',
 
     oop:
       'Object-oriented programming principles',
@@ -852,19 +1261,7 @@ function buildInterviewTopics(
       'Data structures, algorithms and problem solving',
 
     microservices:
-      'Microservices architecture and communication',
-
-    ai:
-      'AI fundamentals and practical applications',
-
-    llm:
-      'LLM fundamentals and evaluation',
-
-    promptengineering:
-      'Prompt engineering and prompt evaluation',
-
-    genai:
-      'Generative AI concepts and practical implementation'
+      'Microservices architecture and service communication'
   }
 
   const topics = []
@@ -879,30 +1276,39 @@ function buildInterviewTopics(
 
   return unique(
     topics
-  ).slice(0, 8)
+  ).slice(0, 10)
 }
 
-/*
- * -------------------------------------------------------
- * SUMMARY
- * -------------------------------------------------------
- */
+
+// ======================================================
+// SUMMARY
+// ======================================================
 
 function buildSummary(
   score,
   matchingSkills,
-  missingSkills
+  missingSkills,
+  jobDescription
 ) {
+  const aiRole =
+    isAIRole(jobDescription)
+
   if (score >= 80) {
-    return `Strong match. Your resume demonstrates ${matchingSkills.length} relevant skills, with ${missingSkills.length} notable gaps.`
+    return aiRole
+      ? `Strong AI-role match. Your resume demonstrates ${matchingSkills.length} relevant skills, with ${missingSkills.length} notable gaps.`
+      : `Strong match. Your resume demonstrates ${matchingSkills.length} relevant skills, with ${missingSkills.length} notable gaps.`
   }
 
   if (score >= 65) {
-    return `Good match. Your resume demonstrates several relevant skills, with some requirements that could be strengthened.`
+    return aiRole
+      ? `Good AI-role match. Your resume demonstrates several relevant AI and technical skills, with some requirements that could be strengthened.`
+      : `Good match. Your resume demonstrates several relevant skills, with some requirements that could be strengthened.`
   }
 
   if (score >= 50) {
-    return `Moderate match. Your resume contains relevant experience, but several job requirements should be addressed.`
+    return aiRole
+      ? `Moderate AI-role match. Your resume contains relevant technical experience, but several AI-specific requirements should be addressed.`
+      : `Moderate match. Your resume contains relevant experience, but several job requirements should be addressed.`
   }
 
   if (score >= 30) {
@@ -912,16 +1318,12 @@ function buildSummary(
   return `Low match. Several important requirements from the job description were not clearly detected in the resume.`
 }
 
-/*
- * -------------------------------------------------------
- * API HANDLER
- * -------------------------------------------------------
- */
 
-export default async function handler(
-  req,
-  res
-) {
+// ======================================================
+// API HANDLER
+// ======================================================
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({
       error: 'Method not allowed'
@@ -948,15 +1350,13 @@ export default async function handler(
       !jobDescription.trim()
     ) {
       return res.status(400).json({
-        error:
-          'Job description is required.'
+        error: 'Job description is required.'
       })
     }
 
     if (resume.length > 100000) {
       return res.status(413).json({
-        error:
-          'Resume text is too large.'
+        error: 'Resume text is too large.'
       })
     }
 
@@ -967,23 +1367,12 @@ export default async function handler(
       })
     }
 
-    /*
-     * Detect resume skills.
-     */
     const resumeSkills =
       detectSkills(resume)
 
-    /*
-     * Detect JD requirements.
-     */
     const jdSkills =
-      extractRequirements(
-        jobDescription
-      )
+      extractRequirements(jobDescription)
 
-    /*
-     * Compare.
-     */
     const matchingSkills =
       getMatchingSkills(
         resumeSkills,
@@ -996,9 +1385,6 @@ export default async function handler(
         jdSkills
       )
 
-    /*
-     * Calculate score.
-     */
     const score =
       calculateScore(
         resume,
@@ -1008,18 +1394,18 @@ export default async function handler(
         matchingSkills
       )
 
-    /*
-     * Final response.
-     */
+    const aiRole =
+      isAIRole(jobDescription)
+
     const result = {
-      matchScore:
-        score.overall,
+      matchScore: score.overall,
 
       summary:
         buildSummary(
           score.overall,
           matchingSkills,
-          missingSkills
+          missingSkills,
+          jobDescription
         ),
 
       breakdown: {
@@ -1080,14 +1466,17 @@ export default async function handler(
         missingSkillCount:
           missingSkills.length,
 
+        roleType:
+          aiRole
+            ? 'AI / Prompt Engineering'
+            : 'Software / Technical',
+
         analyzer:
-          'JobPilot Local Skills Analyzer v3'
+          'JobPilot Local Skills Analyzer v4'
       }
     }
 
-    return res.status(200).json(
-      result
-    )
+    return res.status(200).json(result)
 
   } catch (error) {
     console.error(
@@ -1097,7 +1486,7 @@ export default async function handler(
 
     return res.status(500).json({
       error:
-        error.message ||
+        error?.message ||
         'Local analysis failed.'
     })
   }

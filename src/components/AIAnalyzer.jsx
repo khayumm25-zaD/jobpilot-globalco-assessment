@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs'
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 
 import {
   Sparkles,
@@ -12,18 +13,26 @@ import {
   MessageSquare
 } from 'lucide-react'
 
+// Configure PDF.js worker for Vite
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
+
+// Extract readable text from a PDF
 async function extractPdfText(file) {
   const arrayBuffer = await file.arrayBuffer()
 
   const pdf = await pdfjsLib.getDocument({
-    data: arrayBuffer,
-    disableWorker: true
+    data: arrayBuffer
   }).promise
 
   const pages = []
 
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+  for (
+    let pageNumber = 1;
+    pageNumber <= pdf.numPages;
+    pageNumber++
+  ) {
     const page = await pdf.getPage(pageNumber)
+
     const content = await page.getTextContent()
 
     const text = content.items
@@ -36,6 +45,7 @@ async function extractPdfText(file) {
   return pages.join('\n\n').trim()
 }
 
+// Read supported resume files
 async function readResumeFile(file) {
   if (!file) return ''
 
@@ -48,10 +58,7 @@ async function readResumeFile(file) {
     return extractPdfText(file)
   }
 
-  if (
-    extension === 'txt' ||
-    extension === 'md'
-  ) {
+  if (extension === 'txt' || extension === 'md') {
     return file.text()
   }
 
@@ -73,11 +80,13 @@ export default function AIAnalyzer() {
 
     try {
       setError('')
+      setResult(null)
       setFileName(file.name)
+      setResume('')
 
       const text = await readResumeFile(file)
 
-      if (!text.trim()) {
+      if (!text || !text.trim()) {
         throw new Error(
           'The uploaded file does not contain readable text.'
         )
@@ -85,10 +94,13 @@ export default function AIAnalyzer() {
 
       setResume(text)
     } catch (err) {
+      console.error('Resume reading error:', err)
+
       setResume('')
+
       setError(
         err.message ||
-        'Unable to read the uploaded resume.'
+          'Unable to read the uploaded resume.'
       )
     }
   }
@@ -130,9 +142,11 @@ export default function AIAnalyzer() {
 
       setResult(data)
     } catch (err) {
+      console.error('Analysis error:', err)
+
       setError(
         err.message ||
-        'Unable to analyze the resume.'
+          'Unable to analyze the resume.'
       )
     } finally {
       setBusy(false)
@@ -154,12 +168,13 @@ export default function AIAnalyzer() {
 
         <span className="ai-badge">
           <Sparkles size={16} />
-          Local analyzer
+          AI analyzer
         </span>
       </div>
 
       <div className="ai-grid">
 
+        {/* Resume Panel */}
         <div className="panel stack">
 
           <div className="panel-title">
@@ -180,7 +195,7 @@ export default function AIAnalyzer() {
 
               <input
                 type="file"
-                accept=".pdf,.txt,.md"
+                accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
                 hidden
                 onChange={e =>
                   readFile(
@@ -218,9 +233,11 @@ export default function AIAnalyzer() {
             <textarea
               rows="18"
               value={resume}
-              onChange={e =>
+              onChange={e => {
                 setResume(e.target.value)
-              }
+                setResult(null)
+                setError('')
+              }}
               placeholder="Paste your resume text here..."
             />
 
@@ -232,6 +249,7 @@ export default function AIAnalyzer() {
 
         </div>
 
+        {/* Job Description Panel */}
         <div className="panel stack">
 
           <div className="panel-title">
@@ -256,9 +274,11 @@ export default function AIAnalyzer() {
             <textarea
               rows="18"
               value={jobDescription}
-              onChange={e =>
+              onChange={e => {
                 setJobDescription(e.target.value)
-              }
+                setResult(null)
+                setError('')
+              }}
               placeholder="Paste the job description here..."
             />
 
@@ -290,6 +310,7 @@ export default function AIAnalyzer() {
 
       </div>
 
+      {/* Error */}
       {error && (
         <div className="alert">
 
@@ -304,6 +325,7 @@ export default function AIAnalyzer() {
         </div>
       )}
 
+      {/* Results */}
       {result && (
         <AnalysisResult result={result} />
       )}
@@ -317,6 +339,7 @@ function AnalysisResult({ result }) {
   return (
     <div className="analysis-result">
 
+      {/* Overall Score */}
       <div className="score-card">
 
         <span>
@@ -333,6 +356,7 @@ function AnalysisResult({ result }) {
 
       </div>
 
+      {/* Match Breakdown */}
       {result.breakdown && (
         <section className="match-breakdown">
 
@@ -350,7 +374,7 @@ function AnalysisResult({ result }) {
             <Breakdown
               label="Technical skills"
               value={
-                result.breakdown.technicalSkills
+                result.breakdown.technicalSkills ?? 0
               }
             />
 
@@ -358,7 +382,7 @@ function AnalysisResult({ result }) {
               label="Requirements coverage"
               value={
                 result.breakdown
-                  .requirementsCoverage
+                  .requirementsCoverage ?? 0
               }
             />
 
@@ -366,7 +390,7 @@ function AnalysisResult({ result }) {
               label="Project & experience"
               value={
                 result.breakdown
-                  .projectExperience
+                  .projectExperience ?? 0
               }
             />
 
@@ -374,7 +398,7 @@ function AnalysisResult({ result }) {
               label="Tools & technologies"
               value={
                 result.breakdown
-                  .toolsTechnologies
+                  .toolsTechnologies ?? 0
               }
             />
 
@@ -383,6 +407,7 @@ function AnalysisResult({ result }) {
         </section>
       )}
 
+      {/* Result Cards */}
       <div className="result-grid">
 
         <ResultList
@@ -444,6 +469,10 @@ function ResultList({
   icon
 }) {
 
+  const safeItems = Array.isArray(items)
+    ? items
+    : []
+
   return (
     <div className="result-card">
 
@@ -457,25 +486,31 @@ function ResultList({
 
       </div>
 
-      {items.length ? (
+      {safeItems.length ? (
+
         <ul>
 
-          {items.map((item, index) => (
+          {safeItems.map((item, index) => (
 
             <li
               className={good ? 'good' : ''}
               key={index}
             >
-              {item}
+              {typeof item === 'string'
+                ? item
+                : item?.skill || String(item)}
             </li>
 
           ))}
 
         </ul>
+
       ) : (
+
         <p className="no-items">
           No items detected.
         </p>
+
       )}
 
     </div>
@@ -483,6 +518,10 @@ function ResultList({
 }
 
 function SkillGapList({ items = [] }) {
+
+  const safeItems = Array.isArray(items)
+    ? items
+    : []
 
   return (
     <div className="result-card">
@@ -502,11 +541,11 @@ function SkillGapList({ items = [] }) {
         detected.
       </p>
 
-      {items.length ? (
+      {safeItems.length ? (
 
         <div className="skill-gap-list">
 
-          {items.map((item, index) => (
+          {safeItems.map((item, index) => (
 
             <div
               className="skill-gap"
@@ -516,23 +555,24 @@ function SkillGapList({ items = [] }) {
               <div className="skill-gap-heading">
 
                 <strong>
-                  {item.skill}
+                  {item?.skill || 'Unknown skill'}
                 </strong>
 
                 <span
                   className={
-                    item.priority === 'High'
+                    item?.priority === 'High'
                       ? 'priority high'
                       : 'priority medium'
                   }
                 >
-                  {item.priority} priority
+                  {item?.priority || 'Medium'} priority
                 </span>
 
               </div>
 
               <p>
-                {item.reason}
+                {item?.reason ||
+                  'This requirement was not clearly detected in the resume.'}
               </p>
 
             </div>
