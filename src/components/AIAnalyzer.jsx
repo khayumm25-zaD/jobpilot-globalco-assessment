@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
+
 import {
   Sparkles,
   Upload,
@@ -9,6 +11,54 @@ import {
   Lightbulb,
   MessageSquare
 } from 'lucide-react'
+
+async function extractPdfText(file) {
+  const arrayBuffer = await file.arrayBuffer()
+
+  const pdf = await pdfjsLib.getDocument({
+    data: arrayBuffer,
+    disableWorker: true
+  }).promise
+
+  const pages = []
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+    const page = await pdf.getPage(pageNumber)
+    const content = await page.getTextContent()
+
+    const text = content.items
+      .map(item => item.str || '')
+      .join(' ')
+
+    pages.push(text)
+  }
+
+  return pages.join('\n\n').trim()
+}
+
+async function readResumeFile(file) {
+  if (!file) return ''
+
+  const extension = file.name
+    .split('.')
+    .pop()
+    ?.toLowerCase()
+
+  if (extension === 'pdf') {
+    return extractPdfText(file)
+  }
+
+  if (
+    extension === 'txt' ||
+    extension === 'md'
+  ) {
+    return file.text()
+  }
+
+  throw new Error(
+    'Unsupported file type. Please upload a PDF, TXT, or MD file.'
+  )
+}
 
 export default function AIAnalyzer() {
   const [resume, setResume] = useState('')
@@ -25,7 +75,7 @@ export default function AIAnalyzer() {
       setError('')
       setFileName(file.name)
 
-      const text = await file.text()
+      const text = await readResumeFile(file)
 
       if (!text.trim()) {
         throw new Error(
@@ -35,7 +85,11 @@ export default function AIAnalyzer() {
 
       setResume(text)
     } catch (err) {
-      setError(err.message || 'Unable to read the file.')
+      setResume('')
+      setError(
+        err.message ||
+        'Unable to read the uploaded resume.'
+      )
     }
   }
 
@@ -91,6 +145,7 @@ export default function AIAnalyzer() {
       <div className="page-title">
         <div>
           <h1>AI Job Match</h1>
+
           <p>
             Compare your resume with a job description
             and identify skill gaps.
@@ -108,20 +163,24 @@ export default function AIAnalyzer() {
         <div className="panel stack">
 
           <div className="panel-title">
+
             <div>
               <h2>Candidate profile</h2>
+
               <p>
                 Upload your resume or paste the text.
               </p>
             </div>
 
             <label className="upload-btn">
+
               <Upload size={15} />
+
               Upload resume
 
               <input
                 type="file"
-                accept=".txt,.md,.pdf"
+                accept=".pdf,.txt,.md"
                 hidden
                 onChange={e =>
                   readFile(
@@ -129,11 +188,14 @@ export default function AIAnalyzer() {
                   )
                 }
               />
+
             </label>
+
           </div>
 
           {fileName && (
             <div className="file-info">
+
               <FileText size={17} />
 
               <strong>
@@ -141,12 +203,16 @@ export default function AIAnalyzer() {
               </strong>
 
               <span>
-                Ready
+                {resume
+                  ? 'Ready'
+                  : 'Reading...'}
               </span>
+
             </div>
           )}
 
           <label>
+
             Resume
 
             <textarea
@@ -157,6 +223,7 @@ export default function AIAnalyzer() {
               }
               placeholder="Paste your resume text here..."
             />
+
           </label>
 
           <div className="character-count">
@@ -165,21 +232,25 @@ export default function AIAnalyzer() {
 
         </div>
 
-
         <div className="panel stack">
 
           <div className="panel-title">
+
             <div>
+
               <h2>Target opportunity</h2>
 
               <p>
                 Paste the job description you want
                 to evaluate.
               </p>
+
             </div>
+
           </div>
 
           <label>
+
             Job description
 
             <textarea
@@ -190,6 +261,7 @@ export default function AIAnalyzer() {
               }
               placeholder="Paste the job description here..."
             />
+
           </label>
 
           <div className="character-count">
@@ -205,28 +277,32 @@ export default function AIAnalyzer() {
             }
             onClick={analyze}
           >
+
             <Sparkles size={17} />
 
             {busy
               ? 'Analyzing...'
               : 'Analyze match'}
+
           </button>
 
         </div>
 
       </div>
 
-
       {error && (
         <div className="alert">
-          <strong>Analysis failed</strong>
+
+          <strong>
+            Analysis failed
+          </strong>
 
           <span>
             {error}
           </span>
+
         </div>
       )}
-
 
       {result && (
         <AnalysisResult result={result} />
@@ -235,7 +311,6 @@ export default function AIAnalyzer() {
     </section>
   )
 }
-
 
 function AnalysisResult({ result }) {
 
@@ -257,7 +332,6 @@ function AnalysisResult({ result }) {
         </p>
 
       </div>
-
 
       {result.breakdown && (
         <section className="match-breakdown">
@@ -309,7 +383,6 @@ function AnalysisResult({ result }) {
         </section>
       )}
 
-
       <div className="result-grid">
 
         <ResultList
@@ -347,7 +420,6 @@ function AnalysisResult({ result }) {
   )
 }
 
-
 function Breakdown({ label, value }) {
 
   return (
@@ -364,7 +436,6 @@ function Breakdown({ label, value }) {
     </div>
   )
 }
-
 
 function ResultList({
   title,
@@ -388,14 +459,18 @@ function ResultList({
 
       {items.length ? (
         <ul>
+
           {items.map((item, index) => (
+
             <li
               className={good ? 'good' : ''}
               key={index}
             >
               {item}
             </li>
+
           ))}
+
         </ul>
       ) : (
         <p className="no-items">
@@ -406,7 +481,6 @@ function ResultList({
     </div>
   )
 }
-
 
 function SkillGapList({ items = [] }) {
 
@@ -429,6 +503,7 @@ function SkillGapList({ items = [] }) {
       </p>
 
       {items.length ? (
+
         <div className="skill-gap-list">
 
           {items.map((item, index) => (
@@ -465,10 +540,13 @@ function SkillGapList({ items = [] }) {
           ))}
 
         </div>
+
       ) : (
+
         <p className="no-items">
           No significant skill gaps detected.
         </p>
+
       )}
 
     </div>
