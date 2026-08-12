@@ -1,30 +1,14 @@
 const SKILL_ALIASES = {
-  javascript: [
-    'javascript',
-    'js',
-    'ecmascript'
-  ],
-
-  typescript: [
-    'typescript',
-    'ts'
-  ],
-
-  react: [
-    'react',
-    'reactjs',
-    'react.js'
-  ],
-
-  angular: [
-    'angular',
-    'angularjs'
-  ],
+  javascript: ['javascript', 'js', 'ecmascript'],
+  typescript: ['typescript', 'ts'],
+  react: ['react', 'reactjs', 'react.js'],
+  angular: ['angular', 'angularjs'],
 
   nodejs: [
     'node.js',
     'nodejs',
-    'node js'
+    'node js',
+    'node'
   ],
 
   express: [
@@ -33,14 +17,8 @@ const SKILL_ALIASES = {
     'expressjs'
   ],
 
-  python: [
-    'python',
-    'python3'
-  ],
-
-  java: [
-    'java'
-  ],
+  python: ['python', 'python3'],
+  java: ['java'],
 
   springboot: [
     'spring boot',
@@ -52,13 +30,12 @@ const SKILL_ALIASES = {
     'structured query language'
   ],
 
-  mysql: [
-    'mysql'
-  ],
+  mysql: ['mysql'],
 
   postgresql: [
     'postgresql',
-    'postgres'
+    'postgres',
+    'postgres db'
   ],
 
   mongodb: [
@@ -67,35 +44,37 @@ const SKILL_ALIASES = {
     'mongo'
   ],
 
-  supabase: [
-    'supabase'
-  ],
-
-  firebase: [
-    'firebase'
-  ],
+  supabase: ['supabase'],
+  firebase: ['firebase'],
 
   restapi: [
     'rest api',
     'rest apis',
     'restful api',
-    'restful apis'
+    'restful apis',
+    'rest api development',
+    'restful services'
   ],
 
   api: [
     'api',
-    'apis'
+    'apis',
+    'application programming interface',
+    'application programming interfaces'
   ],
 
   git: [
     'git',
     'git scm',
-    'git version control'
+    'git version control',
+    'version control'
   ],
 
   github: [
     'github',
-    'github actions'
+    'github actions',
+    'github repository',
+    'github repositories'
   ],
 
   html: [
@@ -108,18 +87,14 @@ const SKILL_ALIASES = {
     'css3'
   ],
 
-  bootstrap: [
-    'bootstrap'
-  ],
+  bootstrap: ['bootstrap'],
 
   tailwind: [
     'tailwind',
     'tailwind css'
   ],
 
-  docker: [
-    'docker'
-  ],
+  docker: ['docker'],
 
   kubernetes: [
     'kubernetes',
@@ -131,6 +106,7 @@ const SKILL_ALIASES = {
     'ci cd',
     'continuous integration',
     'continuous deployment',
+    'continuous integration and continuous deployment',
     'github actions'
   ],
 
@@ -145,49 +121,35 @@ const SKILL_ALIASES = {
     'google cloud platform'
   ],
 
-  azure: [
-    'azure'
-  ],
+  azure: ['azure'],
 
-  vercel: [
-    'vercel'
-  ],
+  vercel: ['vercel'],
 
-  selenium: [
-    'selenium'
-  ],
-
-  postman: [
-    'postman'
-  ],
-
-  playwright: [
-    'playwright'
-  ],
-
-  junit: [
-    'junit'
-  ],
-
-  pytest: [
-    'pytest'
-  ],
+  selenium: ['selenium'],
+  postman: ['postman'],
+  playwright: ['playwright'],
+  junit: ['junit'],
+  pytest: ['pytest'],
 
   oop: [
     'object oriented',
     'object-oriented',
+    'object oriented programming',
+    'object-oriented programming',
     'oop'
   ],
 
   dsa: [
     'data structures',
     'algorithms',
+    'data structures and algorithms',
     'dsa'
   ],
 
   microservices: [
     'microservices',
-    'microservice'
+    'microservice',
+    'microservices architecture'
   ],
 
   ai: [
@@ -197,6 +159,7 @@ const SKILL_ALIASES = {
 
   llm: [
     'llm',
+    'llms',
     'large language model',
     'large language models'
   ],
@@ -204,7 +167,8 @@ const SKILL_ALIASES = {
   promptengineering: [
     'prompt engineering',
     'prompt engineer',
-    'prompt engineering'
+    'prompt engineering techniques',
+    'prompt design'
   ],
 
   genai: [
@@ -277,10 +241,16 @@ function containsSkill(text, aliases) {
       return false
     }
 
+    /*
+     * Multi-word aliases are checked directly.
+     */
     if (a.includes(' ')) {
       return normalized.includes(a)
     }
 
+    /*
+     * Single-word aliases use word boundaries.
+     */
     const escaped = a.replace(
       /[.*+?^${}()|[\]\\]/g,
       '\\$&'
@@ -296,7 +266,9 @@ function containsSkill(text, aliases) {
 function detectSkills(text) {
   const detected = []
 
-  for (const [key, aliases] of Object.entries(SKILL_ALIASES)) {
+  for (const [key, aliases] of Object.entries(
+    SKILL_ALIASES
+  )) {
     if (containsSkill(text, aliases)) {
       detected.push(key)
     }
@@ -316,15 +288,16 @@ function unique(array) {
 }
 
 function extractRequirements(jobDescription) {
-  const requirements = []
-
-  for (const [key, aliases] of Object.entries(SKILL_ALIASES)) {
-    if (containsSkill(jobDescription, aliases)) {
-      requirements.push(key)
-    }
-  }
-
-  return unique(requirements)
+  return unique(
+    Object.entries(SKILL_ALIASES)
+      .filter(([key, aliases]) =>
+        containsSkill(
+          jobDescription,
+          aliases
+        )
+      )
+      .map(([key]) => key)
+  )
 }
 
 function getMatchingSkills(
@@ -345,38 +318,89 @@ function getMissingSkills(
   )
 }
 
+/*
+ * -------------------------------------------------------
+ * KEYWORD COVERAGE
+ * -------------------------------------------------------
+ *
+ * Instead of comparing every word in the JD, we focus
+ * on meaningful technical / professional terms.
+ */
+
 function calculateKeywordCoverage(
   resume,
   jobDescription
 ) {
-  const resumeWords = new Set(
-    normalize(resume)
-      .split(' ')
-      .filter(word => word.length >= 4)
-  )
+  const resumeText = normalize(resume)
+  const jdText = normalize(jobDescription)
 
-  const jdWords = unique(
-    normalize(jobDescription)
-      .split(' ')
-      .filter(word => word.length >= 4)
-  )
-
-  if (!jdWords.length) {
+  if (!resumeText || !jdText) {
     return 0
   }
 
-  let matches = 0
+  const jdImportantTerms = [
+    'developer',
+    'software',
+    'engineer',
+    'frontend',
+    'backend',
+    'full stack',
+    'fullstack',
+    'application',
+    'web',
+    'api',
+    'apis',
+    'rest',
+    'database',
+    'sql',
+    'cloud',
+    'deployment',
+    'testing',
+    'development',
+    'programming',
+    'javascript',
+    'python',
+    'java',
+    'react',
+    'node',
+    'git',
+    'github',
+    'aws',
+    'gcp',
+    'google cloud',
+    'azure',
+    'docker',
+    'ci/cd',
+    'communication',
+    'problem solving'
+  ]
 
-  for (const word of jdWords) {
-    if (resumeWords.has(word)) {
-      matches++
-    }
+  const relevantTerms =
+    jdImportantTerms.filter(term =>
+      jdText.includes(term)
+    )
+
+  if (!relevantTerms.length) {
+    return 50
   }
 
+  const matches =
+    relevantTerms.filter(term =>
+      resumeText.includes(term)
+    )
+
   return Math.round(
-    (matches / jdWords.length) * 100
+    (matches.length /
+      relevantTerms.length) *
+      100
   )
 }
+
+/*
+ * -------------------------------------------------------
+ * PROJECT / EXPERIENCE EVIDENCE
+ * -------------------------------------------------------
+ */
 
 function calculateProjectEvidence(
   resume,
@@ -384,12 +408,15 @@ function calculateProjectEvidence(
 ) {
   const text = normalize(resume)
 
-  const projectIndicators = [
+  const indicators = [
     'project',
+    'projects',
     'developed',
+    'develop',
     'built',
     'implemented',
     'created',
+    'designed',
     'application',
     'system',
     'framework',
@@ -399,25 +426,29 @@ function calculateProjectEvidence(
     'github',
     'vercel',
     'internship',
-    'experience'
+    'experience',
+    'testing',
+    'automation',
+    'dashboard',
+    'website',
+    'platform'
   ]
 
   const indicatorMatches =
-    projectIndicators.filter(
-      word => text.includes(word)
+    indicators.filter(
+      indicator =>
+        text.includes(indicator)
     ).length
 
   const skillEvidence =
-    matchingSkills.length > 0
-      ? Math.min(
-          matchingSkills.length * 8,
-          60
-        )
-      : 0
+    Math.min(
+      matchingSkills.length * 10,
+      60
+    )
 
   const textEvidence =
     Math.min(
-      indicatorMatches * 4,
+      indicatorMatches * 3,
       40
     )
 
@@ -426,6 +457,60 @@ function calculateProjectEvidence(
     skillEvidence + textEvidence
   )
 }
+
+/*
+ * -------------------------------------------------------
+ * TOOL / TECHNOLOGY COVERAGE
+ * -------------------------------------------------------
+ */
+
+function calculateToolCoverage(
+  resumeSkills,
+  jdSkills
+) {
+  const toolSkills = [
+    'github',
+    'git',
+    'docker',
+    'kubernetes',
+    'aws',
+    'gcp',
+    'azure',
+    'vercel',
+    'supabase',
+    'firebase',
+    'postman',
+    'selenium',
+    'playwright',
+    'cicd'
+  ]
+
+  const jdTools =
+    jdSkills.filter(skill =>
+      toolSkills.includes(skill)
+    )
+
+  if (!jdTools.length) {
+    return 100
+  }
+
+  const matchedTools =
+    jdTools.filter(tool =>
+      resumeSkills.includes(tool)
+    )
+
+  return Math.round(
+    (matchedTools.length /
+      jdTools.length) *
+      100
+  )
+}
+
+/*
+ * -------------------------------------------------------
+ * SCORE
+ * -------------------------------------------------------
+ */
 
 function calculateScore(
   resume,
@@ -444,6 +529,9 @@ function calculateScore(
     }
   }
 
+  /*
+   * Technical skill match.
+   */
   const technical =
     Math.round(
       (matchingSkills.length /
@@ -451,48 +539,95 @@ function calculateScore(
         100
     )
 
+  /*
+   * JD keyword coverage.
+   */
   const keyword =
     calculateKeywordCoverage(
       resume,
       jobDescription
     )
 
+  /*
+   * Project / experience evidence.
+   */
   const projects =
     calculateProjectEvidence(
       resume,
       matchingSkills
     )
 
+  /*
+   * Tools / technology coverage.
+   */
   const tools =
-    technical
+    calculateToolCoverage(
+      resumeSkills,
+      jdSkills
+    )
 
   /*
-    Overall score:
+   * Requirements coverage.
+   *
+   * This is intentionally different from technical
+   * skill matching so that relevant resume evidence
+   * and keywords can contribute.
+   */
+  const requirements =
+    Math.round(
+      technical * 0.70 +
+      keyword * 0.30
+    )
 
-    55% technical skills
-    20% JD keyword coverage
-    15% project/experience evidence
-    10% tools/technology coverage
-  */
-
-  const overall = Math.round(
-    technical * 0.55 +
-    keyword * 0.20 +
-    projects * 0.15 +
-    tools * 0.10
-  )
+  /*
+   * Overall:
+   *
+   * 45% technical skills
+   * 20% requirements coverage
+   * 20% project / experience
+   * 15% tools / technologies
+   */
+  const overall =
+    Math.round(
+      technical * 0.45 +
+      requirements * 0.20 +
+      projects * 0.20 +
+      tools * 0.15
+    )
 
   return {
-    overall: Math.min(100, overall),
-    technical,
-    requirements: Math.round(
-      technical * 0.9 +
-      keyword * 0.1
+    overall: Math.max(
+      0,
+      Math.min(100, overall)
     ),
-    projects,
-    tools
+
+    technical: Math.max(
+      0,
+      Math.min(100, technical)
+    ),
+
+    requirements: Math.max(
+      0,
+      Math.min(100, requirements)
+    ),
+
+    projects: Math.max(
+      0,
+      Math.min(100, projects)
+    ),
+
+    tools: Math.max(
+      0,
+      Math.min(100, tools)
+    )
   }
 }
+
+/*
+ * -------------------------------------------------------
+ * PRIORITY
+ * -------------------------------------------------------
+ */
 
 function priorityForSkill(skill) {
   const highPriority = [
@@ -510,7 +645,8 @@ function priorityForSkill(skill) {
     'gcp',
     'azure',
     'postgresql',
-    'mysql'
+    'mysql',
+    'javascript'
   ]
 
   if (
@@ -521,6 +657,12 @@ function priorityForSkill(skill) {
 
   return 'Medium'
 }
+
+/*
+ * -------------------------------------------------------
+ * SKILL GAPS
+ * -------------------------------------------------------
+ */
 
 function buildSkillGaps(
   missingSkills
@@ -538,6 +680,12 @@ function buildSkillGaps(
       }, but this skill was not clearly detected in the resume.`
   }))
 }
+
+/*
+ * -------------------------------------------------------
+ * RECOMMENDATIONS
+ * -------------------------------------------------------
+ */
 
 function buildRecommendations(
   matchingSkills,
@@ -596,10 +744,27 @@ function buildRecommendations(
     )
   }
 
+  if (
+    containsSkill(
+      jobDescription,
+      SKILL_ALIASES.python
+    )
+  ) {
+    recommendations.push(
+      'Include concrete Python projects, automation scripts, APIs, or data-processing work if applicable.'
+    )
+  }
+
   return unique(
     recommendations
   ).slice(0, 6)
 }
+
+/*
+ * -------------------------------------------------------
+ * INTERVIEW TOPICS
+ * -------------------------------------------------------
+ */
 
 function buildInterviewTopics(
   jdSkills
@@ -643,6 +808,9 @@ function buildInterviewTopics(
 
     restapi:
       'REST API design, HTTP methods and status codes',
+
+    api:
+      'API design, authentication, validation and error handling',
 
     git:
       'Git workflows, branching and version control',
@@ -703,12 +871,22 @@ function buildInterviewTopics(
 
   for (const skill of jdSkills) {
     if (topicMap[skill]) {
-      topics.push(topicMap[skill])
+      topics.push(
+        topicMap[skill]
+      )
     }
   }
 
-  return unique(topics).slice(0, 8)
+  return unique(
+    topics
+  ).slice(0, 8)
 }
+
+/*
+ * -------------------------------------------------------
+ * SUMMARY
+ * -------------------------------------------------------
+ */
 
 function buildSummary(
   score,
@@ -719,16 +897,26 @@ function buildSummary(
     return `Strong match. Your resume demonstrates ${matchingSkills.length} relevant skills, with ${missingSkills.length} notable gaps.`
   }
 
-  if (score >= 60) {
-    return `Good potential match. Your resume demonstrates several relevant skills, but some requirements should be strengthened.`
+  if (score >= 65) {
+    return `Good match. Your resume demonstrates several relevant skills, with some requirements that could be strengthened.`
   }
 
-  if (score >= 40) {
-    return `Moderate match. Your resume contains relevant experience, but several requirements should be addressed.`
+  if (score >= 50) {
+    return `Moderate match. Your resume contains relevant experience, but several job requirements should be addressed.`
+  }
+
+  if (score >= 30) {
+    return `Partial match. Some relevant experience is present, but important technical requirements are missing or not clearly demonstrated.`
   }
 
   return `Low match. Several important requirements from the job description were not clearly detected in the resume.`
 }
+
+/*
+ * -------------------------------------------------------
+ * API HANDLER
+ * -------------------------------------------------------
+ */
 
 export default async function handler(
   req,
@@ -751,8 +939,7 @@ export default async function handler(
       !resume.trim()
     ) {
       return res.status(400).json({
-        error:
-          'Resume is required.'
+        error: 'Resume is required.'
       })
     }
 
@@ -780,14 +967,23 @@ export default async function handler(
       })
     }
 
+    /*
+     * Detect resume skills.
+     */
     const resumeSkills =
       detectSkills(resume)
 
+    /*
+     * Detect JD requirements.
+     */
     const jdSkills =
       extractRequirements(
         jobDescription
       )
 
+    /*
+     * Compare.
+     */
     const matchingSkills =
       getMatchingSkills(
         resumeSkills,
@@ -800,6 +996,9 @@ export default async function handler(
         jdSkills
       )
 
+    /*
+     * Calculate score.
+     */
     const score =
       calculateScore(
         resume,
@@ -809,6 +1008,9 @@ export default async function handler(
         matchingSkills
       )
 
+    /*
+     * Final response.
+     */
     const result = {
       matchScore:
         score.overall,
@@ -879,11 +1081,13 @@ export default async function handler(
           missingSkills.length,
 
         analyzer:
-          'JobPilot Local Skills Analyzer v2'
+          'JobPilot Local Skills Analyzer v3'
       }
     }
 
-    return res.status(200).json(result)
+    return res.status(200).json(
+      result
+    )
 
   } catch (error) {
     console.error(
